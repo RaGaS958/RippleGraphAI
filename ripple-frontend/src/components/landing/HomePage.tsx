@@ -86,8 +86,8 @@ function NetworkLines() {
 
 // ── Typewriter hook ──────────────────────────────────────────────────────────
 function useTypewriter(text: string, speed = 40) {
-  const [displayed, setDisplayed] = useRef(['', 0]) as unknown as [{ current: [string, number] }, null]
-  const [, forceUpdate] = useRef(0) as unknown as [{ current: number }, null]
+  const displayed = useRef<[string, number]>(['', 0])
+  const forceUpdate = useRef(0)
 
   useEffect(() => {
     let i = 0
