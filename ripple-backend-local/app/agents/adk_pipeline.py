@@ -59,7 +59,7 @@ except ImportError as e:
 def _tool(fn):
     return _adk_tool(fn) if ADK_AVAILABLE else fn
 
-
+print("ADK AVAILABLE:", ADK_AVAILABLE)
 # ── Tools ─────────────────────────────────────────────────────────────────────
 
 @_tool
