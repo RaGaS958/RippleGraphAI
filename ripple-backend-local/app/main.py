@@ -40,8 +40,14 @@ app = FastAPI(
 )
 
 cfg = get_settings()
-app.add_middleware(CORSMiddleware, allow_origins=cfg.ALLOWED_ORIGINS,
-                   allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cfg.ALLOWED_ORIGINS,
+    allow_origin_regex=r"https://.*\.vercel\.app",  
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 app.include_router(health.router,      prefix="/api/v1",              tags=["health"])
