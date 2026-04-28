@@ -23,6 +23,7 @@ for _parent in [_here.parent, _here.parent.parent, _here.parent.parent.parent]:
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 ML_SERVER_URL  = os.getenv("ML_SERVER_URL", "http://localhost:8081")
+print("🔑 GEMINI KEY LENGTH:", len(GEMINI_API_KEY) if GEMINI_API_KEY else 0)
 
 # ── Import ADK ────────────────────────────────────────────────────────────────
 ADK_AVAILABLE = False
