@@ -45,6 +45,7 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: List[str] = [
         "http://localhost:5173",
         "https://ripplegraph-ai.vercel.app",
+        "https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app",
         "http://localhost:3000",
         "http://localhost:4173",
     ]
