@@ -1,0 +1,49 @@
+db:
+  db_path: data/ripple_graph.db
+  echo_sql: false
+
+gnn:
+  model_type: graphsage
+  hidden_dim: 128
+  num_layers: 3
+  dropout: 0.3
+  heads: 4
+  aggregation: mean
+  node_feature_dim: 16
+  edge_feature_dim: 6
+  output_dim: 45
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  batch_size: 32
+  num_epochs: 100
+  early_stopping_patience: 15
+  scheduler: cosine
+  warmup_epochs: 5
+  loss_fn: huber
+  huber_delta: 0.5
+  neighbor_sample_sizes: [15, 10, 5]
+  train_ratio: 0.70
+  val_ratio: 0.15
+  test_ratio: 0.15
+
+training:
+  seed: 42
+  device: auto        # auto detects cuda > mps > cpu
+  num_workers: 0      # 0 = safe on all platforms
+  log_every_n_steps: 5
+  save_every_n_epochs: 20
+  checkpoint_dir: artifacts/checkpoints
+  experiment_name: ripple-gnn
+
+serving:
+  host: 0.0.0.0
+  port: 8081
+  stub_mode: false    # set false after artifacts/model.pt exists
+  model_artifact_path: artifacts/model.pt
+
+llm:
+  provider: ollama    # ollama | template
+  model: llama3.2     # run: ollama pull llama3.2
+  base_url: http://localhost:11434
+  temperature: 0.2
+  max_tokens: 1024
