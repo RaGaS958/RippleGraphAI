@@ -16,6 +16,14 @@
 
 **A full-stack AI platform that predicts cascade disruptions across 29-node supplier networks — 45 days ahead — using GraphSAGE GNN, a multi-agent Google ADK pipeline, and a real-time 3D Earth visualization.**
 
+### 🔗 Live Deployments
+
+| Service | URL | Status |
+|---------|-----|--------|
+| 🖥️ **Frontend** | [ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app](https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/) | Vercel |
+| 🧠 **ML / GNN Server** | [ragas111-rippleai-ml.hf.space](https://ragas111-rippleai-ml.hf.space/) | Hugging Face Spaces |
+| ⚡ **Backend API** | [ripplegraphai-1.onrender.com](https://ripplegraphai-1.onrender.com/) | Render |
+
 [🚀 Quick Start](#-quick-start) · [🏗️ Architecture](#️-system-architecture) · [🤖 AI Pipeline](#-multi-agent-ai-pipeline) · [🧠 ML Model](#-graphsage-gnn) · [📊 Analytics](#-analytics--stats) · [🎬 Demo](#-mvp--demo)
 
 </div>
@@ -58,11 +66,138 @@ Traditional ERPs track inventory. They cannot model **how risk propagates** thro
 
 ---
 
+## 🚀 Quick Start
+
+> ⚠️ **IMPORTANT — Services must be started in this exact order:**
+>
+> **Step 1 → ML Server first** → **Step 2 → Backend second** → **Step 3 → Frontend last**
+>
+> The backend depends on the ML server being ready. The frontend depends on the backend being ready.
+
+---
+
+### ☁️ Option A — Use Live Deployments (Recommended — No Setup Required)
+
+> **Follow this warm-up order to avoid cold-start timeouts:**
+
+#### 1️⃣ Wake Up the ML Server
+Open the ML server first and wait for it to fully load (Hugging Face Spaces may take ~30–60 seconds on a cold start):
+
+👉 **[https://ragas111-rippleai-ml.hf.space/](https://ragas111-rippleai-ml.hf.space/)**
+
+Wait until you see a `{"status":"ok"}` or health response before proceeding.
+
+#### 2️⃣ Wake Up the Backend
+Open the backend API — Render free tier may take ~30–60 seconds to spin up:
+
+👉 **[https://ripplegraphai-1.onrender.com/](https://ripplegraphai-1.onrender.com/)**
+
+You can verify it's healthy at:
+```
+https://ripplegraphai-1.onrender.com/api/v1/health
+```
+
+#### 3️⃣ Open the Frontend
+Once both services are running, open the app:
+
+👉 **[https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/](https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/)**
+
+---
+
+### 🖥️ Option B — Run Locally
+
+#### Prerequisites
+
+```
+Python 3.11+   Node 18+   Git
+Optional: GEMINI_API_KEY (falls back to rule-based without it)
+```
+
+#### Clone the Repo
+
+```bash
+git clone https://github.com/RaGaS958/RippleGraphAI.git
+cd RippleGraphAI
+```
+
+#### Step 1 — Start ML Server First (Port 8081)
+
+> 🔴 **Must be running before the backend starts.**
+
+```bash
+cd ripple-ml-local
+pip install -r requirements.txt
+python -m ml.serving.prediction_server
+# Serves GraphSAGE model from artifacts/model.pt
+# Wait for: "ML server running on :8081" before proceeding
+```
+
+Verify it's up:
+```bash
+curl http://localhost:8081/health
+# Expected: {"status": "ok"}
+```
+
+#### Step 2 — Start Backend Second (Port 8080)
+
+> 🔴 **Only start after the ML server is healthy.**
+
+```bash
+# Open a new terminal tab
+cd ripple-backend-local
+pip install -r requirements.txt
+# Optional: add GEMINI_API_KEY to .env for AI-powered recommendations
+echo "GEMINI_API_KEY=your_key_here" >> .env
+uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
+# Wait for: "Application startup complete" before proceeding
+```
+
+Verify it's up:
+```bash
+curl http://localhost:8080/api/v1/health
+# Expected: {"status": "ok"}
+```
+
+#### Step 3 — Start Frontend Last (Port 5173)
+
+> 🔴 **Only start after both the ML server and backend are healthy.**
+
+```bash
+# Open a new terminal tab
+cd ripple-frontend
+npm install
+npm run dev
+# Open http://localhost:5173
+```
+
+#### ✅ All-Services Health Check
+
+```bash
+curl http://localhost:8081/health      # ML Server
+curl http://localhost:8080/api/v1/health  # Backend
+# Then open http://localhost:5173 in your browser
+```
+
+---
+
+### 🎬 Live Demo Walkthrough
+
+> Works with both the [live deployment](https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/) and local setup.
+
+1. **Login** → [`/login`](https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/login) with demo credentials
+2. **Navigate** → [`/app/graph`](https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/app/graph) — observe 29 supplier nodes on 3D Earth
+3. **Inject** → [`/app/simulation`](https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/app/simulation) — select "TSMC Fab Shutdown"
+4. **Watch** → Globe nodes turn red in real-time via WebSocket
+5. **Inspect** → [`/app/analytics`](https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/app/analytics) — KPIs: revenue at risk, critical nodes, 45-day chart
+6. **Ask** → [`/app/agent`](https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/app/agent) — *"Which Tier-2 suppliers are most at risk from the TSMC event?"*
+
+---
+
 ## 🏗️ System Architecture
 
 ```mermaid
 graph TB
-    subgraph CLIENT["🖥️ Frontend — React 18 + TypeScript + Vite"]
+    subgraph CLIENT["🖥️ Frontend — React 18 + TypeScript + Vite · vercel.app"]
         LP[Landing Page<br/>Three.js Hero]
         GP[3D Globe<br/>GraphPage]
         SIM[Simulation<br/>Page]
@@ -70,7 +205,7 @@ graph TB
         CHAT[Agent Chat<br/>NL Interface]
     end
 
-    subgraph BACKEND["⚡ Backend — FastAPI :8080"]
+    subgraph BACKEND["⚡ Backend — FastAPI · ripplegraphai-1.onrender.com"]
         API[REST API Layer<br/>12 endpoints]
         WS[WebSocket<br/>Broadcast Manager]
         EQ[Event Queue<br/>Async Worker]
@@ -83,7 +218,7 @@ graph TB
         RA[RecommenderAgent<br/>Gemini / Rule-Based]
     end
 
-    subgraph ML["🧠 ML Server — GraphSAGE :8081"]
+    subgraph ML["🧠 ML Server — GraphSAGE · ragas111-rippleai-ml.hf.space"]
         GNN[GraphSAGE GNN<br/>PyTorch Geometric]
         MDLS[Model Artifacts<br/>best_model.pt ~848KB]
     end
@@ -123,11 +258,11 @@ graph TB
 ```mermaid
 sequenceDiagram
     actor User
-    participant FE as React Frontend
-    participant API as FastAPI :8080
+    participant FE as React Frontend<br/>(vercel.app)
+    participant API as FastAPI Backend<br/>(onrender.com)
     participant EQ as EventQueue
     participant ADK as ADK Pipeline
-    participant GNN as GNN Server :8081
+    participant GNN as GNN Server<br/>(hf.space)
     participant WS as WebSocket
     participant DB as SQLite
 
@@ -167,7 +302,7 @@ flowchart LR
     M3 -- No / Suppress --> DONE([✅ No-op])
 
     subgraph AA["AnalystAgent"]
-        A1[Call GNN :8081\nwith graph payload]
+        A1[Call GNN · hf.space\nwith graph payload]
         A2[Receive 45-day\nper-node scores]
         A3[Calculate peak_risk_day\npeak_risk_score per supplier]
         A4[Aggregate revenue\nat risk across nodes]
@@ -194,6 +329,8 @@ flowchart LR
 ---
 
 ## 🧠 GraphSAGE GNN
+
+> 🔗 ML Server: **[ragas111-rippleai-ml.hf.space](https://ragas111-rippleai-ml.hf.space/)**
 
 ### Model Architecture
 
@@ -281,7 +418,7 @@ gantt
 
 ```mermaid
 mindmap
-  root((RippleGraph API))
+  root((RippleGraph API<br/>onrender.com))
     Auth
       POST /auth/login
       POST /auth/register
@@ -379,6 +516,8 @@ erDiagram
 
 ## 🖥️ Frontend Route Map
 
+> Base URL: **[ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app](https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/)**
+
 ```mermaid
 graph TD
     ROOT["/"] --> HOME["🏠 HomePage<br/>Three.js hero + parallax<br/>GSAP entrance animations"]
@@ -398,63 +537,20 @@ graph TD
     style AGENT fill:#7c3aed,color:#fff
 ```
 
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-```
-Python 3.11+   Node 18+   Git
-Optional: GEMINI_API_KEY (falls back to rule-based without it)
-```
-
-### 1 — Clone & Set Up
-
-```bash
-git clone https://github.com/RaGaS958/RippleGraphAI.git
-cd RippleGraphAI
-```
-
-### 2 — ML Server (Port 8081)
-
-```bash
-cd ripple-ml-local
-pip install -r requirements.txt
-python -m ml.serving.prediction_server
-# Serves GraphSAGE model from artifacts/model.pt
-```
-
-### 3 — Backend (Port 8080)
-
-```bash
-cd ripple-backend-local
-pip install -r requirements.txt
-# Optional: add GEMINI_API_KEY to .env
-uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
-```
-
-### 4 — Frontend (Port 5173)
-
-```bash
-cd ripple-frontend
-npm install
-npm run dev
-# Open http://localhost:5173
-```
-
-### One-liner check
-
-```bash
-# Verify all 3 services are up
-curl http://localhost:8080/api/v1/health   # Backend
-curl http://localhost:8081/health          # GNN server
-# Then open http://localhost:5173
-```
+| Route | Live Link |
+|-------|-----------|
+| 🏠 Home | [/](https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/) |
+| 🔐 Login | [/login](https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/login) |
+| 🌍 3D Globe | [/app/graph](https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/app/graph) |
+| ⚡ Simulation | [/app/simulation](https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/app/simulation) |
+| 📊 Analytics | [/app/analytics](https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/app/analytics) |
+| 💬 Agent Chat | [/app/agent](https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/app/agent) |
 
 ---
 
 ## 🌐 WebSocket Events
+
+> WebSocket endpoint: `wss://ripplegraphai-1.onrender.com/ws/live`
 
 | Event Type | Trigger | Payload Shape |
 |---|---|---|
@@ -464,8 +560,8 @@ curl http://localhost:8081/health          # GNN server
 | `new_event` | Disruption created | Full disruption_event object |
 
 ```javascript
-// Connect
-const ws = new WebSocket("ws://localhost:8080/ws/live");
+// Connect to live backend
+const ws = new WebSocket("wss://ripplegraphai-1.onrender.com/ws/live");
 ws.onmessage = ({ data }) => {
   const msg = JSON.parse(data);
   if (msg.type === "risk_update") updateGlobe(msg.payload);
@@ -479,21 +575,21 @@ ws.onmessage = ({ data }) => {
 
 ```
 ripplegraph-ai/
-├── ripple-backend-local/
+├── ripple-backend-local/           # → deployed: ripplegraphai-1.onrender.com
 │   └── app/
 │       ├── agents/          # Google ADK pipeline (3 agents)
 │       ├── api/routes/      # 12 FastAPI route modules
 │       ├── core/            # Auth (JWT), config, logging
 │       ├── models/          # Pydantic schemas
 │       └── services/        # DB, EventQueue, WS manager, ML client
-├── ripple-frontend/
+├── ripple-frontend/                # → deployed: vercel.app
 │   └── src/
 │       ├── components/      # graph/, dashboard/, auth/
 │       ├── hooks/           # TanStack Query, WebSocket
 │       ├── services/        # Axios client + interceptors
 │       ├── store/           # Zustand auth state
 │       └── types/           # TypeScript interfaces
-└── ripple-ml-local/
+└── ripple-ml-local/                # → deployed: ragas111-rippleai-ml.hf.space
     ├── ml/
     │   ├── model/           # GraphSAGE + GAT architectures
     │   ├── data/            # Dataset, graph builder, DB
@@ -526,14 +622,17 @@ ripplegraph-ai/
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Live Demo Script
+### Live Demo Links
 
-1. **Login** → `/login` with demo credentials
-2. **Navigate** → `/app/graph` — observe 29 supplier nodes on 3D Earth
-3. **Inject** → `/app/simulation` — select "TSMC Fab Shutdown"
-4. **Watch** → Globe nodes turn red in real-time via WebSocket
-5. **Inspect** → `/app/analytics` — KPIs: revenue at risk, critical nodes, 45-day chart
-6. **Ask** → `/app/agent` — "Which Tier-2 suppliers are most at risk from the TSMC event?"
+| Step | Action | Link |
+|------|--------|------|
+| 1 | 🧠 Wake ML Server | [ragas111-rippleai-ml.hf.space](https://ragas111-rippleai-ml.hf.space/) |
+| 2 | ⚡ Wake Backend | [ripplegraphai-1.onrender.com](https://ripplegraphai-1.onrender.com/) |
+| 3 | 🔐 Login | [/login](https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/login) |
+| 4 | 🌍 View 3D Globe | [/app/graph](https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/app/graph) |
+| 5 | ⚡ Inject Scenario | [/app/simulation](https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/app/simulation) |
+| 6 | 📊 View Analytics | [/app/analytics](https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/app/analytics) |
+| 7 | 💬 Ask Agent | [/app/agent](https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/app/agent) |
 
 ---
 
@@ -541,7 +640,7 @@ ripplegraph-ai/
 
 ```mermaid
 graph LR
-    subgraph FE["Frontend"]
+    subgraph FE["Frontend · vercel.app"]
         R18[React 18]
         TS[TypeScript]
         THREE[Three.js]
@@ -551,7 +650,7 @@ graph LR
         GSAP[GSAP]
     end
 
-    subgraph BE["Backend"]
+    subgraph BE["Backend · onrender.com"]
         FAPI[FastAPI 0.115]
         UV[Uvicorn]
         SQLA[SQLAlchemy]
@@ -559,7 +658,7 @@ graph LR
         JWT[JWT Auth]
     end
 
-    subgraph AI["AI / ML"]
+    subgraph AI["AI / ML · hf.space"]
         ADK[Google ADK]
         GEMINI[Gemini API]
         PT[PyTorch 2.4]
@@ -594,8 +693,9 @@ graph LR
 | Model File Size | ~848 KB |
 | Checkpoints Saved | Every 20 epochs (ep020→ep100 + best) |
 
----
+> 🔗 Model served at: **[ragas111-rippleai-ml.hf.space](https://ragas111-rippleai-ml.hf.space/)**
 
+---
 
 ## 📄 License
 
@@ -608,6 +708,10 @@ MIT License — built for Hackathon 2024. See [LICENSE](LICENSE) for details.
 **Built with ❤️ for Hackathon 2024**
 
 *RippleGraph AI — Predict the ripple. Prevent the wave.*
+
+| 🖥️ Frontend | 🧠 ML Server | ⚡ Backend |
+|------------|-------------|----------|
+| [vercel.app](https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/) | [hf.space](https://ragas111-rippleai-ml.hf.space/) | [onrender.com](https://ripplegraphai-1.onrender.com/) |
 
 [![Star this repo](https://img.shields.io/github/stars/RaGaS958/RippleGraphAI?style=social)](.)
 
