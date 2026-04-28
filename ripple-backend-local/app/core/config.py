@@ -44,7 +44,7 @@ class Settings(BaseSettings):
     # ── CORS ──────────────────────────────────────────────────────────────────
     ALLOWED_ORIGINS: List[str] = [
         "http://localhost:5173",
-        "https://ripple-graph-ai.vercel.app",
+        "https://ripplegraph-ai.vercel.app/",
         "http://localhost:3000",
         "http://localhost:4173",
     ]
