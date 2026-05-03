@@ -20,7 +20,7 @@
 
 | Service | URL | Status |
 |---------|-----|--------|
-| 🖥️ **Frontend** | [ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app](https://ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app/) | Vercel |
+| 🖥️ **Frontend** | [ripplegraph-ccj0s7nz7-pushkar-khattri-s-projects.vercel.app](https://ripplegraph-1vonnpitv-pushkar-khattri-s-projects.vercel.app?_vercel_share=fViunBtnvxrioimF8ECZl1sSnuCVpvB1) | Vercel |
 | 🧠 **ML / GNN Server** | [ragas111-rippleai-ml.hf.space](https://ragas111-rippleai-ml.hf.space/) | Hugging Face Spaces |
 | ⚡ **Backend API** | [ripplegraphai-1.onrender.com](https://ripplegraphai-1.onrender.com/) | Render |
 
